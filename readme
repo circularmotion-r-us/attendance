@@ -1,0 +1,75 @@
+# College Attendance Tracker
+
+A comprehensive attendance tracking application built with React, Express, and PostgreSQL. Helps students track class attendance, set goals, and manage academic schedules with Chrome notifications.
+
+## ✨ Features
+
+- **Simple Authentication**: Name-based login (no passwords)
+- **Smart Calculations**: Class-based attendance tracking (not day-based)
+- **Goal Setting**: Set attendance percentage targets with feasibility analysis
+- **Chrome Notifications**: Daily reminders and progress alerts
+- **Calendar View**: Interactive calendar with color-coded attendance
+- **Schedule Management**: Weekly class schedules with time slots
+- **Holiday Management**: Mark holidays to exclude from calculations
+- **Mobile Responsive**: Works perfectly on all devices
+- **Data Persistence**: PostgreSQL database with real-time sync
+
+## 🚀 Live Demo
+
+Deploy your own copy for FREE:
+
+### Option 1: Vercel + Neon (Recommended)
+1. **Database**: Sign up at [neon.tech](https://neon.tech) → Create project → Copy DATABASE_URL
+2. **Deploy**: Fork this repo → Connect to [vercel.com](https://vercel.com) → Add DATABASE_URL → Deploy
+3. **Initialize**: Visit `/api/init-db` after deployment
+
+### Option 2: Render + Supabase
+1. **Database**: Sign up at [supabase.com](https://supabase.com) → Create project → Copy connection string
+2. **Deploy**: Fork this repo → Connect to [render.com](https://render.com) → Add DATABASE_URL → Deploy
+
+## 🛠️ Technologies
+
+- **Frontend**: React 18, TypeScript, Tailwind CSS, Radix UI
+- **Backend**: Express.js, Node.js, PostgreSQL
+- **Database**: Drizzle ORM with type-safe queries
+- **State Management**: TanStack Query
+- **Notifications**: Chrome Notifications API
+- **Charts**: Recharts for data visualization
+
+## 📊 Key Features
+
+### Attendance Calculation
+- **Class-based tracking**: Counts individual classes, not days
+- **Percentage calculation**: Real-time attendance percentage
+- **Goal analysis**: Determines if target percentage is achievable
+- **Trend visualization**: Charts showing attendance patterns
+
+### Notification System
+- **Daily reminders**: Customizable reminder times
+- **Goal alerts**: Notifications when attendance drops below target
+- **Weekly reports**: Summary of attendance progress
+- **Browser notifications**: Works on desktop and mobile Chrome
+
+### Schedule Management
+- **Weekly schedules**: Define classes for each day of the week
+- **Time slots**: Specific start and end times for each class
+- **Holiday support**: Mark holidays to exclude from calculations
+- **Recurring patterns**: Set up semester-long schedules
+
+## 🔧 Development
+
+```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+DATABASE_URL=your_postgresql_connection_string
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
