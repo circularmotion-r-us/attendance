@@ -1,0 +1,132 @@
+import { pgTable, text, serial, integer, boolean, timestamp, date, jsonb, decimal } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email"),
+  createdAt: timestamp("created_at").defaultNow(),
+  semesterEndDate: date("semester_end_date"),
+  minAttendanceRequired: integer("min_attendance_required").default(75),
+  notificationSettings: jsonb("notification_settings").default({
+    dailyReminder: true,
+    weeklyReport: true,
+    goalAlerts: true,
+    reminderTime: "20:00"
+  }),
+});
+
+export const schedules = pgTable("schedules", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  dayOfWeek: integer("day_of_week").notNull(), // 0-6, Sunday=0
+  classCount: integer("class_count").notNull(),
+  schedule: jsonb("schedule").notNull(), // Array of class objects with name, startTime, endTime
+  isActive: boolean("is_active").default(true),
+});
+
+export const attendanceRecords = pgTable("attendance_records", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  date: date("date").notNull(),
+  classesHeld: integer("classes_held").notNull(),
+  classesAttended: integer("classes_attended").notNull(),
+  wasCollegeDay: boolean("was_college_day").default(true),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const holidays = pgTable("holidays", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  date: date("date").notNull(),
+  name: text("name").notNull(),
+  isRecurring: boolean("is_recurring").default(false),
+  dayOfWeek: integer("day_of_week"), // For recurring holidays like "every Monday"
+});
+
+export const attendanceGoals = pgTable("attendance_goals", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  targetPercentage: decimal("target_percentage", { precision: 5, scale: 2 }).notNull(),
+  targetDate: date("target_date"),
+  isAchievable: boolean("is_achievable"),
+  requiredAttendance: integer("required_attendance"),
+  remainingClasses: integer("remaining_classes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  schedules: many(schedules),
+  attendanceRecords: many(attendanceRecords),
+  holidays: many(holidays),
+  attendanceGoals: many(attendanceGoals),
+}));
+
+export const schedulesRelations = relations(schedules, ({ one }) => ({
+  user: one(users, {
+    fields: [schedules.userId],
+    references: [users.id],
+  }),
+}));
+
+export const attendanceRecordsRelations = relations(attendanceRecords, ({ one }) => ({
+  user: one(users, {
+    fields: [attendanceRecords.userId],
+    references: [users.id],
+  }),
+}));
+
+export const holidaysRelations = relations(holidays, ({ one }) => ({
+  user: one(users, {
+    fields: [holidays.userId],
+    references: [users.id],
+  }),
+}));
+
+export const attendanceGoalsRelations = relations(attendanceGoals, ({ one }) => ({
+  user: one(users, {
+    fields: [attendanceGoals.userId],
+    references: [users.id],
+  }),
+}));
+
+// Insert schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertScheduleSchema = createInsertSchema(schedules).omit({
+  id: true,
+});
+
+export const insertAttendanceRecordSchema = createInsertSchema(attendanceRecords).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertHolidaySchema = createInsertSchema(holidays).omit({
+  id: true,
+});
+
+export const insertAttendanceGoalSchema = createInsertSchema(attendanceGoals).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Schedule = typeof schedules.$inferSelect;
+export type InsertSchedule = z.infer<typeof insertScheduleSchema>;
+export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
+export type InsertAttendanceRecord = z.infer<typeof insertAttendanceRecordSchema>;
+export type Holiday = typeof holidays.$inferSelect;
+export type InsertHoliday = z.infer<typeof insertHolidaySchema>;
+export type AttendanceGoal = typeof attendanceGoals.$inferSelect;
+export type InsertAttendanceGoal = z.infer<typeof insertAttendanceGoalSchema>;
